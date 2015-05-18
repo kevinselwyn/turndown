@@ -15,8 +15,8 @@ static int turndown(char *filename, char *boundary, void (*func)()) {
 	int header_size = 44, default_driver = 0, f_size = 0, b_count = 0;
 	size_t file_size = 0, boundary_offset = 0, boundary_size = 0, wav_size = 0;
 	size_t BUF_SIZE = 4096, leftover_bytes = 0;
-	char *exec = NULL, *wav = NULL, *buffer = NULL;
-	FILE *file = NULL;
+	char *exec = NULL, *cmd_str = NULL, *cmd_which = NULL, *wav = NULL, *buffer = NULL;
+	FILE *file = NULL, *cmd = NULL;
 	ao_device *device;
 	ao_sample_format format;
 	struct wav_header {
@@ -33,6 +33,25 @@ static int turndown(char *filename, char *boundary, void (*func)()) {
 
 		rc = 1;
 		goto cleanup;
+	}
+
+	if (strncmp(filename, ".", 1) != 0 && strncmp(filename, "/", 1) != 0) {
+		cmd_str = malloc(sizeof(char) * (7 + strlen(filename)));
+		strcpy(cmd_str, "which ");
+		strcat(cmd_str, filename);
+
+		cmd = popen(cmd_str, "r");
+		cmd_which = malloc(sizeof(char) * 100);
+		(void)fread(cmd_which, 1, 100, cmd);
+
+		for (i = (int)strlen(cmd_which), l = 0; i >= l; i--) {
+			if (cmd_which[i] == '\n') {
+				cmd_which[i] = '\0';
+				break;
+			}
+		}
+
+		filename = cmd_which;
 	}
 
 	file = fopen(filename, "rb");
@@ -168,6 +187,18 @@ cleanup:
 
 	if (buffer) {
 		free(buffer);
+	}
+
+	if (cmd) {
+		(void)pclose(cmd);
+	}
+
+	if (cmd_str) {
+		free(cmd_str);
+	}
+
+	if (cmd_which) {
+		free(cmd_which);
 	}
 
 	return rc;
