@@ -1,16 +1,15 @@
-#turndown
+# turndown
 
 Utility that prevents Mac users from turning down
 
-##Installation
+## Installation
 
 ```bash
-make && sudo make install
+cargo build --release
+cargo install --path .
 ```
 
-Note: This utility depends on libao
-
-##Usage
+## Usage
 
 ```bash
 turndown
@@ -18,7 +17,7 @@ turndown
 
 If the volume is turned all the way down (or muted), the volume is cranked up to 100% and DJ Snake and Lil Jon's [Turn Down For What](https://www.youtube.com/watch?v=HMUDVMiITOU) plays.
 
-##Disclaimer
+## Disclaimer
 
 All due credit and apologies to DJ Snake, Lil Jon, Columbia, and all Mac speakers everywhere.
 
